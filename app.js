@@ -4,7 +4,9 @@ const app = express();
 
 app.use(express.json());
 
-app.post('/test', (request, response) => {
+//  https://scim-connector.herokuapp.com/test
+
+app.post('/scim/v2/Users', (request, response) => {
     
     const getUserSuccess = {
         "schemas": ["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
