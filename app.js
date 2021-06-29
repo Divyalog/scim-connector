@@ -3,51 +3,105 @@ const express = require('express');
 const app = express();
 
 app.use(express.json());
+   
+    const getUserFailure = {
+        "schemas": ["urn:ietf:params:scim:api:messages:2.0:Error"],
+        "detail": "User not found",
+        "status": 404
+    };
 
-//  https://scim-connector.herokuapp.com/test
-
-app.post('/scim/v2/Users', (request, response) => {
-    
     const getUserSuccess = {
         "schemas": ["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
         "totalResults": 0,
         "startIndex": 1,
         "itemsPerPage": 0,
-        "Resources": []
+        "Resources": [{
+            "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
+            "id": "23a35c27-23d3-4c03-b4c5-6443c09e7173",
+            "userName": "test.user@okta.local",
+            "name": {
+                "givenName": "Test",
+                "middleName": "",
+                "familyName": "User"
+            },
+            "active": true,
+            "emails": [{
+                "primary": true,
+                "value": "test.user@okta.local",
+                "type": "work",
+                "display": "test.user@okta.local"
+            }],
+            "groups": [],
+            "meta": {
+                "resourceType": "User"
+            }
+        }]
     };
-      const createUserSuccess = {
-        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
-        "id": "23a35c27-23d3-4c03-b4c5-6443c09e7173",
-        "userName": "test.user@okta.local",
-        "name": {
-            "givenName": "Test",
-            "familyName": "User"
-        },
-        "emails": [{
-            "primary": true,
-            "value": "test.user@okta.local",
-            "type": "work"
+
+    const getGroupSuccess = {
+        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:Group"],
+        "id": "abf4dd94-a4c0-4f67-89c9-76b03340cb9b",
+        "displayName": "Test SCIMv2",
+        "members":  [{
+            "value": "b1c794f24f4c49f4b5d503a4cb2686ea",
+            "display": "SCIM 2 Group A"
         }],
-        "displayName": "Test User",
-        "locale": "en-US",
-        "externalId": "00ujl29u0le5T6Aj10h7",
-        "active": true,
-        "groups": [],
         "meta": {
-            "resourceType": "User"
+            "resourceType": "Group"
         }
     };
-      console.log('Entering method post method');
-      const payload=request.body
-      const username = payload.userName;
-      if(username !== "")
-      {
-        console.log("SUCCESS")
+
+      const updateUserSuccess = {
+    "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
+    "id": "23a35c27-23d3-4c03-b4c5-6443c09e7173",
+    "userName": "test.user@okta.local",
+    "name": {
+        "givenName": "Another",
+        "middleName": "Excited",
+        "familyName": "User"
+    },
+    "emails": [{
+        "primary": true,
+        "value": "test.user@okta.local",
+        "type": "work",
+        "display": "test.user@okta.local"
+    }],
+    "active": true,
+    "groups": [],
+    "meta": {
+        "resourceType": "User"
+    }
+};
+
+app.get('/scim/v2/Users/:userId', (request, response)=> {
+    const userId = request.params.userId;
+    if(userId !== ' ')
+    {
+        console.log('success');
         response.send(getUserSuccess);
+    }else{
+        console.log('failure');
+        response.send(getUserFailure);
+    }
+});
+
+app.get('/scim/v2/Groups', (request, response)=> {
+        console.log('success');
+        response.send(getGroupSuccess);
+});
+
+app.put('/scim/v2/Users/:userId', (request, response) => {
+      console.log('Entering method post method');
+      const payload = request.body
+      const username = payload.userName;
+      if(username !== '')
+      {
+        console.log('SUCCESS')
+        response.send({ getUserSuccess, updateUserSuccess });
       }
       else{
-      console.log("FAILURE")
-      response.send(createUserSuccess);
+      console.log('FAILURE')
+      response.send(getUserFailure);
       }
 });
 
